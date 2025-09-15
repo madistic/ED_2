@@ -1,0 +1,351 @@
+{
+  "info": {
+    "name": "School Payment Dashboard API",
+    "description": "Complete API collection for the School Payment Dashboard Application",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', response.token);",
+                  "    pm.test('Login successful', function () {",
+                  "        pm.expect(response.token).to.be.a('string');",
+                  "        pm.expect(response.user).to.be.an('object');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Login failed', function () {",
+                  "        pm.response.to.have.status(401);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with username and password to get JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signup",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "signup"]
+            },
+            "description": "Create a new user account"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"1000\",\n  \"callback_url\": \"https://example.com/callback\",\n  \"student_info\": {\n    \"name\": \"John Doe\",\n    \"id\": \"STU001\",\n    \"email\": \"john.doe@example.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/create-payment",
+              "host": ["{{base_url}}"],
+              "path": ["create-payment"]
+            },
+            "description": "Create a new payment request"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transaction-status/ORDER_1703001001_abc123",
+              "host": ["{{base_url}}"],
+              "path": ["transaction-status", "ORDER_1703001001_abc123"]
+            },
+            "description": "Check transaction status by order ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Get All Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions?page=1&limit=10&sort=createdAt&order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                },
+                {
+                  "key": "status",
+                  "value": "success",
+                  "disabled": true
+                },
+                {
+                  "key": "school_id",
+                  "value": "65b0e6293e9f76a9694d84b4",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all transactions with pagination, sorting, and filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transactions by School",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/school/65b0e6293e9f76a9694d84b4?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "school", "65b0e6293e9f76a9694d84b4"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get transactions filtered by school ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhook",
+      "item": [
+        {
+          "name": "Payment Status Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 1,\n  \"order_info\": {\n    \"order_id\": \"COLLECT_001\",\n    \"order_amount\": 1000,\n    \"transaction_amount\": 1000,\n    \"gateway\": \"Edviron\",\n    \"bank_reference\": \"REF_12345ABCDE\",\n    \"status\": \"success\",\n    \"payment_mode\": \"netbanking\",\n    \"payment_details\": \"Payment completed via netbanking\",\n    \"payment_message\": \"Transaction successful\",\n    \"payment_time\": \"2024-01-01T12:00:00.000Z\",\n    \"error_message\": \"\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["webhook"]
+            },
+            "description": "Webhook endpoint for payment status updates (no auth required)"
+          },
+          "response": []
+        },
+        {
+          "name": "Failed Payment Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 0,\n  \"order_info\": {\n    \"order_id\": \"COLLECT_002\",\n    \"order_amount\": 1500,\n    \"transaction_amount\": 1500,\n    \"gateway\": \"Edviron\",\n    \"bank_reference\": \"REF_FAILED123\",\n    \"status\": \"failed\",\n    \"payment_mode\": \"card\",\n    \"payment_details\": \"Payment failed\",\n    \"payment_message\": \"Transaction declined by bank\",\n    \"payment_time\": \"2024-01-01T12:30:00.000Z\",\n    \"error_message\": \"Insufficient funds\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["webhook"]
+            },
+            "description": "Test webhook with failed payment status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Data Examples",
+      "item": [
+        {
+          "name": "Sample Order IDs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "",
+              "host": [""]
+            },
+            "description": "Sample Order IDs for testing:\n- ORDER_1703001001_abc123\n- ORDER_1703001002_def456\n- ORDER_1703001003_ghi789\n\nUse these IDs with the 'Get Transaction Status' endpoint."
+          },
+          "response": []
+        },
+        {
+          "name": "Environment Variables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "",
+              "host": [""]
+            },
+            "description": "Required environment variables:\n\n**Backend (.env):**\n- MONGO_URI=mongodb+srv://...\n- JWT_SECRET=your-secret\n- PG_KEY=edvtest01\n- API_KEY=eyJhbGciOiJIUzI1NiIs...\n- SCHOOL_ID=65b0e6293e9f76a9694d84b4\n\n**Frontend (.env):**\n- VITE_API_URL=http://localhost:3001\n\n**Default Login:**\n- Username: admin\n- Password: admin123"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
